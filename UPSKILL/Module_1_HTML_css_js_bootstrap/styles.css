@@ -1,0 +1,223 @@
+/* Universal Selector */
+
+*{
+    margin: 0px;
+    padding: 5px;
+    box-sizing:border-box;
+}
+
+/*Body Styles*/
+
+body{
+    font-family: 'Poppins',sans-serif;
+    background-color: #f2f2f2;
+    background-image: url("images/background.jpeg");
+    background-size: cover;
+}
+
+/*Section headings*/
+
+h2{
+    background: linear-gradient(to right, rgba(3, 12, 33, 0), rgb(22, 6, 9));
+    font-weight: bold;
+    font-style: italic;
+    color: #ff6600;
+    text-align: center;
+}
+
+/*Group selectors*/
+
+h3,p{
+    line-height: 1.2;
+    text-align: center;
+    color:rgb(255, 255, 255);
+}
+
+/* Navigation Styles */
+
+nav{
+    display: flex;
+    justify-content: center;
+    background-color: rgba(4, 4, 4, 0.511);
+    color: darkmagenta;
+    margin: 20px;
+    padding: 10px;
+    text-align: center;
+    font-size: medium;
+}
+
+nav a{
+    color: white;
+    font-size: 2vw;
+    margin: 10px;
+}
+
+/*Link Pseudo-classes*/
+
+nav a:hover{
+    color: chocolate;
+}
+
+nav a:active{
+    color: aqua;
+}
+
+nav a:visited{
+    color: #008000;
+}
+
+/*list styling*/
+
+nav ul{
+    list-style-type: none;
+    list-style-position: inside;
+    padding:0;
+    display:flex;
+    flex-direction:row;
+}
+
+nav li{
+    display:inline-block;
+    margin:10px;
+}
+
+/*table stylings*/
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top:20px;
+}
+
+th,td{
+    border: 2px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+tr:nth-child(even){
+    background-color: #AAD7E480;
+}
+
+/* table images*/
+
+.eve_img{
+    width: 30vw;
+    height: 30vh;
+    border: 1px solid #7aed86;
+}
+
+/*events*/
+
+.eventCard{
+    text-align: center;
+    border: 2px solid black;
+    background-color: rgba(170, 215, 228, 0.5);
+    margin: 20px;
+    padding: 20px;
+    text-transform: capitalize;
+}
+
+/*registration form*/
+
+.regform{
+    background-color: rgba(127, 224, 235, 0.333);
+    padding: 20px;
+    text-align: left;
+    margin: auto;
+    width: 60%;
+    border: 1px solid black;
+}
+
+.regform input,.regform select,.regform textarea{
+    width: 100%;
+    padding: 10px;
+
+}
+
+/* Input Focus */
+
+.regform input:focus{
+    outline:3px solid rgb(167, 62, 243);
+}
+
+/*Promo styles*/
+
+.promovideo{
+    margin: 20px;
+    padding: 10px;
+    display: block;
+    margin: auto;
+}
+/*newsarticle styles*/
+
+.newsarticle{
+    column-count: 2;
+    column-gap: 30px;
+    column-rule: 1px solid gray;
+    padding: 20px;
+    background-color: rgba(70, 34, 34, 0.423);
+}
+
+/*button styles*/
+
+button{
+    background-color: #7aed86;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid black;
+}
+
+.btn{
+    display: block;
+    margin: auto;
+}
+
+/* contact styles*/
+
+#contact{
+    font-style: italic;
+    letter-spacing: 1px;
+    line-height: 1.2;
+}
+
+/*footer styles*/
+
+.foot{
+    text-align: center;
+    background-color: cadetblue;
+}
+
+/* Responsive Design */
+
+@media screen and (max-width:768px){
+
+    nav a{
+        display:block;
+        margin:10px;
+    }
+
+    nav ul{
+        flex-direction:column;
+    }
+
+    table{
+        display:block;
+        width:100%;
+        text-align:center;
+    }
+
+    .eve_img{
+        width:200px;
+        height:200px;
+    }
+
+    body{
+        font-size:14px;
+    }
+
+    .regform{
+        width:90%;
+    }
+
+}

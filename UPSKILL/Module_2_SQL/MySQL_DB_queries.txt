@@ -1,0 +1,590 @@
+mysql> Create database eventmanagement; use eventmanagement;
+Query OK, 1 row affected (0.01 sec)
+
+Database changed
+mysql>
+mysql> Create table Users (user_id int primary key auto_increment, full_name varchar(100) not null, email varchar(100) unique not null, city varchar(100) not null, registration_date date not null);
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> create TABLE Events (event_id int primary key auto_increment, title varchar(200) not null, description text, city varchar(100) not null, start_date datetime not null, end_date datetime not null, status enum('upcoming','completed','cancelled'), organizer_id int, foreign key (organizer_id) references Users(user_id));
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> Create TABLE Sessions (session_id int primary key auto_increment, event_id int, title varchar(200) not null, speaker_name varchar(100) not null, start_time datetime not null, end_time datetime not null, foreign key (event_id) references Events(event_id));
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> create table Registrations (registration_id int primary key auto_increment, user_id int, event_id int, registration_date date not null, foreign key (user_id) references Users(user_id), foreign key (event_id) references Events(event_id));
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> Create table Feedback (feedback_id int primary key auto_increment, user_id int, event_id int, rating int check (rating between 1 and 5), comments text, feedback_date date not null, foreign key (user_id) references Users(user_id), foreign key (event_id) references Events(event_id));
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> create TABLE Resources (resource_id int primary key auto_increment, event_id int, resource_type enum('pdf','image','link'), resource_url varchar(255) not null, uploaded_at datetime not null, foreign key (event_id) references Events(event_id));
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> Insert into Users (user_id, full_name, email, city, registration_date) values (1,'Alice Johnson','alice@example.com','New York','2024-12-01'), (2,'Bob Smith','bob@example.com','Los Angeles','2024-12-05'), (3,'Charlie Lee','charlie@example.com','Chicago','2024-12-10'), (4,'Diana King','diana@example.com','New York','2025-01-15'), (5,'Ethan Hunt','ethan@example.com','Los Angeles','2025-02-01');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> insert INTO Events (event_id, title, description, city, start_date, end_date, status, organizer_id) VALUES (1,'Tech Innovators Meetup','A meetup for tech enthusiasts.','New York','2025-06-10 10:00:00','2025-06-10 16:00:00','upcoming',1), (2,'AI & ML Conference','Conference on AI and ML advancements.','Chicago','2025-05-15 09:00:00','2025-05-15 17:00:00','completed',3), (3,'Frontend Development Bootcamp','Hands-on training on frontend tech.','Los Angeles','2025-07-01 10:00:00','2025-07-03 16:00:00','upcoming',2);
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> Insert INTO Sessions (session_id, event_id, title, speaker_name, start_time, end_time) values (1,1,'Opening Keynote','Dr. Tech','2025-06-10 10:00:00','2025-06-10 11:00:00'), (2,1,'Future of Web Dev','Alice Johnson','2025-06-10 11:15:00','2025-06-10 12:30:00'), (3,2,'AI in Healthcare','Charlie Lee','2025-05-15 09:30:00','2025-05-15 11:00:00'), (4,3,'Intro to HTML5','Bob Smith','2025-07-01 10:00:00','2025-07-01 12:00:00');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> insert into Registrations (registration_id, user_id, event_id, registration_date) VALUES (1,1,1,'2025-05-01'), (2,2,1,'2025-05-02'), (3,3,2,'2025-04-30'), (4,4,2,'2025-04-28'), (5,5,3,'2025-06-15');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> Insert into Feedback (feedback_id, user_id, event_id, rating, comments, feedback_date) values (1,3,2,4,'Great insights!','2025-05-16'), (2,4,2,5,'Very informative.','2025-05-16'), (3,2,1,3,'Could be better.','2025-06-11');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> insert INTO resources (resource_id, event_id, resource_type, resource_url, uploaded_at) VALUES (1,1,'pdf','https://portal.com/resources/tech_meetup_agenda.pdf','2025-05-01 10:00:00'), (2,2,'image','https://portal.com/resources/ai_poster.jpg','2025-04-20 09:00:00'), (3,3,'link','https://portal.com/resources/html5_docs','2025-06-25 15:00:00');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> Select u.full_name, e.title, e.city, e.start_date from Users u join Registrations r on u.user_id=r.user_id join Events e on r.event_id=e.event_id where e.status='upcoming' and u.city=e.city order by e.start_date;
++---------------+-------------------------------+-------------+---------------------+
+| full_name     | title                         | city        | start_date          |
++---------------+-------------------------------+-------------+---------------------+
+| Alice Johnson | Tech Innovators Meetup        | New York    | 2025-06-10 10:00:00 |
+| Ethan Hunt    | Frontend Development Bootcamp | Los Angeles | 2025-07-01 10:00:00 |
++---------------+-------------------------------+-------------+---------------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql> select e.title, avg(f.rating) as avg_rating, count(f.feedback_id) as cnt from Events e join Feedback f on e.event_id=f.event_id group by e.event_id, e.title having count(f.feedback_id)>=10 order by avg_rating desc;
+Empty set (0.00 sec)
+
+mysql>
+mysql> SELECT * from Users where user_id not in (select user_id from Registrations where registration_date>=curdate()-interval 90 day);
++---------+---------------+---------------------+-------------+-------------------+
+| user_id | full_name     | email               | city        | registration_date |
++---------+---------------+---------------------+-------------+-------------------+
+|       1 | Alice Johnson | alice@example.com   | New York    | 2024-12-01        |
+|       2 | Bob Smith     | bob@example.com     | Los Angeles | 2024-12-05        |
+|       3 | Charlie Lee   | charlie@example.com | Chicago     | 2024-12-10        |
+|       4 | Diana King    | diana@example.com   | New York    | 2025-01-15        |
+|       5 | Ethan Hunt    | ethan@example.com   | Los Angeles | 2025-02-01        |
++---------+---------------+---------------------+-------------+-------------------+
+5 rows in set (0.01 sec)
+
+mysql>
+mysql> select e.title, count(s.session_id) as total_sessions from Events e join Sessions s on e.event_id=s.event_id where hour(s.start_time) between 10 and 12 group by e.title;
++-------------------------------+----------------+
+| title                         | total_sessions |
++-------------------------------+----------------+
+| Tech Innovators Meetup        |              2 |
+| Frontend Development Bootcamp |              1 |
++-------------------------------+----------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql> Select u.city, count(r.registration_id) as registrations from Users u join Registrations r on u.user_id=r.user_id group by u.city order by registrations desc limit 5;
++-------------+---------------+
+| city        | registrations |
++-------------+---------------+
+| New York    |             2 |
+| Los Angeles |             2 |
+| Chicago     |             1 |
++-------------+---------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> select e.title, count(r.resource_id) as total_resources from Events e left join Resources r on e.event_id=r.event_id group by e.title;
++-------------------------------+-----------------+
+| title                         | total_resources |
++-------------------------------+-----------------+
+| Tech Innovators Meetup        |               1 |
+| AI & ML Conference            |               1 |
+| Frontend Development Bootcamp |               1 |
++-------------------------------+-----------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> Select u.full_name, e.title, f.rating, f.comments from Feedback f join Users u on f.user_id=u.user_id join Events e on f.event_id=e.event_id where f.rating<3;
+Empty set (0.00 sec)
+
+mysql>
+mysql> select e.title, count(s.session_id) as session_count from Events e left join Sessions s on e.event_id=s.event_id where e.status='upcoming' group by e.title;
++-------------------------------+---------------+
+| title                         | session_count |
++-------------------------------+---------------+
+| Tech Innovators Meetup        |             2 |
+| Frontend Development Bootcamp |             1 |
++-------------------------------+---------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql> Select u.full_name, e.status, count(e.event_id) as total_events from Users u join Events e on u.user_id=e.organizer_id group by u.full_name, e.status;
++---------------+-----------+--------------+
+| full_name     | status    | total_events |
++---------------+-----------+--------------+
+| Alice Johnson | upcoming  |            1 |
+| Charlie Lee   | completed |            1 |
+| Bob Smith     | upcoming  |            1 |
++---------------+-----------+--------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> select e.title from Events e join Registrations r on e.event_id=r.event_id left join Feedback f on e.event_id=f.event_id where f.feedback_id is null;
++-------------------------------+
+| title                         |
++-------------------------------+
+| Frontend Development Bootcamp |
++-------------------------------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> Select registration_date, count(*) as user_count from Users where registration_date>=curdate()-interval 7 day group by registration_date;
+Empty set (0.00 sec)
+
+mysql>
+mysql> select e.title, count(s.session_id) as total_sessions from Events e join Sessions s on e.event_id=s.event_id group by e.title order by total_sessions desc limit 1;
++------------------------+----------------+
+| title                  | total_sessions |
++------------------------+----------------+
+| Tech Innovators Meetup |              2 |
++------------------------+----------------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> Select e.city, avg(f.rating) as avg_rating from Events e join Feedback f on e.event_id=f.event_id group by e.city;
++----------+------------+
+| city     | avg_rating |
++----------+------------+
+| New York |     3.0000 |
+| Chicago  |     4.5000 |
++----------+------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql> select e.title, count(r.registration_id) as total_reg from Events e join Registrations r on e.event_id=r.event_id group by e.title order by total_reg desc limit 3;
++-------------------------------+-----------+
+| title                         | total_reg |
++-------------------------------+-----------+
+| Tech Innovators Meetup        |         2 |
+| AI & ML Conference            |         2 |
+| Frontend Development Bootcamp |         1 |
++-------------------------------+-----------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> Select s1.event_id, s1.title, s2.title from Sessions s1 join Sessions s2 on s1.event_id=s2.event_id and s1.session_id<s2.session_id and s1.start_time<s2.end_time and s1.end_time>s2.start_time;
+Empty set (0.00 sec)
+
+mysql>
+mysql> select u.* from Users u left join Registrations r on u.user_id=r.user_id where u.registration_date>=curdate()-interval 30 day and r.registration_id is null;
+Empty set (0.00 sec)
+
+mysql>
+mysql> Select speaker_name, count(*) as session_count from Sessions group by speaker_name having count(*)>1;
+Empty set (0.00 sec)
+
+mysql>
+mysql> select e.title from Events e left join Resources r on e.event_id=r.event_id where r.resource_id is null;
+Empty set (0.00 sec)
+
+mysql>
+mysql> Select e.title, count(distinct r.registration_id) as registrations, avg(f.rating) as avg_rating from Events e left join Registrations r on e.event_id=r.event_id left join Feedback f on e.event_id=f.event_id where e.status='completed' group by e.title;
++--------------------+---------------+------------+
+| title              | registrations | avg_rating |
++--------------------+---------------+------------+
+| AI & ML Conference |             2 |     4.5000 |
++--------------------+---------------+------------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> select u.full_name, count(distinct r.event_id) as events_attended, count(distinct f.feedback_id) as feedbacks from Users u left join Registrations r on u.user_id=r.user_id left join Feedback f on u.user_id=f.user_id group by u.full_name;
++---------------+-----------------+-----------+
+| full_name     | events_attended | feedbacks |
++---------------+-----------------+-----------+
+| Alice Johnson |               1 |         0 |
+| Bob Smith     |               1 |         1 |
+| Charlie Lee   |               1 |         1 |
+| Diana King    |               1 |         1 |
+| Ethan Hunt    |               1 |         0 |
++---------------+-----------------+-----------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> Select u.full_name, count(f.feedback_id) as feedback_count from Users u join Feedback f on u.user_id=f.user_id group by u.full_name order by feedback_count desc limit 5;
++-------------+----------------+
+| full_name   | feedback_count |
++-------------+----------------+
+| Bob Smith   |              1 |
+| Charlie Lee |              1 |
+| Diana King  |              1 |
++-------------+----------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> select user_id, event_id, count(*) as dup_count from Registrations group by user_id, event_id having count(*)>1;
+Empty set (0.00 sec)
+
+mysql>
+mysql> Select year(registration_date) as yr, month(registration_date) as mn, count(*) as total from Registrations group by year(registration_date), month(registration_date) order by yr, mn;
++------+------+-------+
+| yr   | mn   | total |
++------+------+-------+
+| 2025 |    4 |     2 |
+| 2025 |    5 |     2 |
+| 2025 |    6 |     1 |
++------+------+-------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> select e.title, avg(timestampdiff(minute, s.start_time, s.end_time)) as avg_duration from Events e join Sessions s on e.event_id=s.event_id group by e.title;
++-------------------------------+--------------+
+| title                         | avg_duration |
++-------------------------------+--------------+
+| Tech Innovators Meetup        |      67.5000 |
+| AI & ML Conference            |      90.0000 |
+| Frontend Development Bootcamp |     120.0000 |
++-------------------------------+--------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> Select e.title from Events e left join Sessions s on e.event_id=s.event_id where s.session_id is null;
+Empty set (0.00 sec)
+
+mysql> drop database eventmanagement;
+Query OK, 6 rows affected (0.13 sec)
+
+mysql> Create database eventmanagement;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> use eventmanagement;
+Database changed
+mysql> Create table Users (user_id int primary key auto_increment, full_name varchar(100) not null, email varchar(100) unique not null, city varchar(100) not null, registration_date date not null);
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> create TABLE Events (event_id int primary key auto_increment, title varchar(200) not null, description text, city varchar(100) not null, start_date datetime not null, end_date datetime not null, status enum('upcoming','completed','cancelled'), organizer_id int, foreign key (organizer_id) references Users(user_id));
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> Create TABLE Sessions (session_id int primary key auto_increment, event_id int, title varchar(200) not null, speaker_name varchar(100) not null, start_time datetime not null, end_time datetime not null, foreign key (event_id) references Events(event_id));
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> create table Registrations (registration_id int primary key auto_increment, user_id int, event_id int, registration_date date not null, foreign key (user_id) references Users(user_id), foreign key (event_id) references Events(event_id));
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> Create table Feedback (feedback_id int primary key auto_increment, user_id int, event_id int, rating int check (rating between 1 and 5), comments text, feedback_date date not null, foreign key (user_id) references Users(user_id), foreign key (event_id) references Events(event_id));
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> create TABLE Resources (resource_id int primary key auto_increment, event_id int, resource_type enum('pdf','image','link'), resource_url varchar(255) not null, uploaded_at datetime not null, foreign key (event_id) references Events(event_id));
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> show TABLES;
++---------------------------+
+| Tables_in_eventmanagement |
++---------------------------+
+| events                    |
+| feedback                  |
+| registrations             |
+| resources                 |
+| sessions                  |
+| users                     |
++---------------------------+
+6 rows in set (0.00 sec)
+
+mysql> Insert into Users (user_id, full_name, email, city, registration_date) values (1,'Alice Johnson','alice@example.com','New York','2024-12-01'), (2,'Bob Smith','bob@example.com','Los Angeles','2024-12-05'), (3,'Charlie Lee','charlie@example.com','Chicago','2024-12-10'), (4,'Diana King','diana@example.com','New York','2025-01-15'), (5,'Ethan Hunt','ethan@example.com','Los Angeles','2025-02-01');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> insert INTO Events (event_id, title, description, city, start_date, end_date, status, organizer_id) VALUES (1,'Tech Innovators Meetup','A meetup for tech enthusiasts.','New York','2025-06-10 10:00:00','2025-06-10 16:00:00','upcoming',1), (2,'AI & ML Conference','Conference on AI and ML advancements.','Chicago','2025-05-15 09:00:00','2025-05-15 17:00:00','completed',3), (3,'Frontend Development Bootcamp','Hands-on training on frontend tech.','Los Angeles','2025-07-01 10:00:00','2025-07-03 16:00:00','upcoming',2);
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> Insert INTO Sessions (session_id, event_id, title, speaker_name, start_time, end_time) values (1,1,'Opening Keynote','Dr. Tech','2025-06-10 10:00:00','2025-06-10 11:00:00'), (2,1,'Future of Web Dev','Alice Johnson','2025-06-10 11:15:00','2025-06-10 12:30:00'), (3,2,'AI in Healthcare','Charlie Lee','2025-05-15 09:30:00','2025-05-15 11:00:00'), (4,3,'Intro to HTML5','Bob Smith','2025-07-01 10:00:00','2025-07-01 12:00:00');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> insert into Registrations (registration_id, user_id, event_id, registration_date) VALUES (1,1,1,'2025-05-01'), (2,2,1,'2025-05-02'), (3,3,2,'2025-04-30'), (4,4,2,'2025-04-28'), (5,5,3,'2025-06-15');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> Insert into Feedback (feedback_id, user_id, event_id, rating, comments, feedback_date) values (1,3,2,4,'Great insights!','2025-05-16'), (2,4,2,5,'Very informative.','2025-05-16'), (3,2,1,3,'Could be better.','2025-06-11');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql>
+mysql> insert INTO resources (resource_id, event_id, resource_type, resource_url, uploaded_at) VALUES (1,1,'pdf','https://portal.com/resources/tech_meetup_agenda.pdf','2025-05-01 10:00:00'), (2,2,'image','https://portal.com/resources/ai_poster.jpg','2025-04-20 09:00:00'), (3,3,'link','https://portal.com/resources/html5_docs','2025-06-25 15:00:00');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from users;
++---------+---------------+---------------------+-------------+-------------------+
+| user_id | full_name     | email               | city        | registration_date |
++---------+---------------+---------------------+-------------+-------------------+
+|       1 | Alice Johnson | alice@example.com   | New York    | 2024-12-01        |
+|       2 | Bob Smith     | bob@example.com     | Los Angeles | 2024-12-05        |
+|       3 | Charlie Lee   | charlie@example.com | Chicago     | 2024-12-10        |
+|       4 | Diana King    | diana@example.com   | New York    | 2025-01-15        |
+|       5 | Ethan Hunt    | ethan@example.com   | Los Angeles | 2025-02-01        |
++---------+---------------+---------------------+-------------+-------------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from events;
++----------+-------------------------------+---------------------------------------+-------------+---------------------+---------------------+-----------+--------------+
+| event_id | title                         | description                           | city        | start_date          | end_date            | status    | organizer_id |
++----------+-------------------------------+---------------------------------------+-------------+---------------------+---------------------+-----------+--------------+
+|        1 | Tech Innovators Meetup        | A meetup for tech enthusiasts.        | New York    | 2025-06-10 10:00:00 | 2025-06-10 16:00:00 | upcoming  |            1 |
+|        2 | AI & ML Conference            | Conference on AI and ML advancements. | Chicago     | 2025-05-15 09:00:00 | 2025-05-15 17:00:00 | completed |            3 |
+|        3 | Frontend Development Bootcamp | Hands-on training on frontend tech.   | Los Angeles | 2025-07-01 10:00:00 | 2025-07-03 16:00:00 | upcoming  |            2 |
++----------+-------------------------------+---------------------------------------+-------------+---------------------+---------------------+-----------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from sessions;
++------------+----------+-------------------+---------------+---------------------+---------------------+
+| session_id | event_id | title             | speaker_name  | start_time          | end_time            |
++------------+----------+-------------------+---------------+---------------------+---------------------+
+|          1 |        1 | Opening Keynote   | Dr. Tech      | 2025-06-10 10:00:00 | 2025-06-10 11:00:00 |
+|          2 |        1 | Future of Web Dev | Alice Johnson | 2025-06-10 11:15:00 | 2025-06-10 12:30:00 |
+|          3 |        2 | AI in Healthcare  | Charlie Lee   | 2025-05-15 09:30:00 | 2025-05-15 11:00:00 |
+|          4 |        3 | Intro to HTML5    | Bob Smith     | 2025-07-01 10:00:00 | 2025-07-01 12:00:00 |
++------------+----------+-------------------+---------------+---------------------+---------------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from registrations;
++-----------------+---------+----------+-------------------+
+| registration_id | user_id | event_id | registration_date |
++-----------------+---------+----------+-------------------+
+|               1 |       1 |        1 | 2025-05-01        |
+|               2 |       2 |        1 | 2025-05-02        |
+|               3 |       3 |        2 | 2025-04-30        |
+|               4 |       4 |        2 | 2025-04-28        |
+|               5 |       5 |        3 | 2025-06-15        |
++-----------------+---------+----------+-------------------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> select * from feedback;
++-------------+---------+----------+--------+-------------------+---------------+
+| feedback_id | user_id | event_id | rating | comments          | feedback_date |
++-------------+---------+----------+--------+-------------------+---------------+
+|           1 |       3 |        2 |      4 | Great insights!   | 2025-05-16    |
+|           2 |       4 |        2 |      5 | Very informative. | 2025-05-16    |
+|           3 |       2 |        1 |      3 | Could be better.  | 2025-06-11    |
++-------------+---------+----------+--------+-------------------+---------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from resources;
++-------------+----------+---------------+-----------------------------------------------------+---------------------+
+| resource_id | event_id | resource_type | resource_url                                        | uploaded_at         |
++-------------+----------+---------------+-----------------------------------------------------+---------------------+
+|           1 |        1 | pdf           | https://portal.com/resources/tech_meetup_agenda.pdf | 2025-05-01 10:00:00 |
+|           2 |        2 | image         | https://portal.com/resources/ai_poster.jpg          | 2025-04-20 09:00:00 |
+|           3 |        3 | link          | https://portal.com/resources/html5_docs             | 2025-06-25 15:00:00 |
++-------------+----------+---------------+-----------------------------------------------------+---------------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> Select u.full_name, e.title, e.city, e.start_date from Users u join Registrations r on u.user_id=r.user_id join Events e on r.event_id=e.event_id where e.status='upcoming' and u.city=e.city order by e.start_date;
++---------------+-------------------------------+-------------+---------------------+
+| full_name     | title                         | city        | start_date          |
++---------------+-------------------------------+-------------+---------------------+
+| Alice Johnson | Tech Innovators Meetup        | New York    | 2025-06-10 10:00:00 |
+| Ethan Hunt    | Frontend Development Bootcamp | Los Angeles | 2025-07-01 10:00:00 |
++---------------+-------------------------------+-------------+---------------------+
+2 rows in set (0.00 sec)
+
+mysql> select e.title, avg(f.rating) as avg_rating, count(f.feedback_id) as cnt from Events e join Feedback f on e.event_id=f.event_id group by e.event_id, e.title having count(f.feedback_id)>=10 order by avg_rating desc;
+Empty set (0.00 sec)
+
+mysql>
+mysql> SELECT * from Users where user_id not in (select user_id from Registrations where registration_date>=curdate()-interval 90 day);
++---------+---------------+---------------------+-------------+-------------------+
+| user_id | full_name     | email               | city        | registration_date |
++---------+---------------+---------------------+-------------+-------------------+
+|       1 | Alice Johnson | alice@example.com   | New York    | 2024-12-01        |
+|       2 | Bob Smith     | bob@example.com     | Los Angeles | 2024-12-05        |
+|       3 | Charlie Lee   | charlie@example.com | Chicago     | 2024-12-10        |
+|       4 | Diana King    | diana@example.com   | New York    | 2025-01-15        |
+|       5 | Ethan Hunt    | ethan@example.com   | Los Angeles | 2025-02-01        |
++---------+---------------+---------------------+-------------+-------------------+
+5 rows in set (0.00 sec)
+
+mysql> select e.title, count(s.session_id) as total_sessions from Events e join Sessions s on e.event_id=s.event_id where hour(s.start_time) between 10 and 12 group by e.title;
++-------------------------------+----------------+
+| title                         | total_sessions |
++-------------------------------+----------------+
+| Tech Innovators Meetup        |              2 |
+| Frontend Development Bootcamp |              1 |
++-------------------------------+----------------+
+2 rows in set (0.00 sec)
+
+mysql> Select u.city, count(r.registration_id) as registrations from Users u join Registrations r on u.user_id=r.user_id group by u.city order by registrations desc limit 5;
++-------------+---------------+
+| city        | registrations |
++-------------+---------------+
+| New York    |             2 |
+| Los Angeles |             2 |
+| Chicago     |             1 |
++-------------+---------------+
+3 rows in set (0.00 sec)
+
+mysql> select e.title, count(r.resource_id) as total_resources from Events e left join Resources r on e.event_id=r.event_id group by e.title;
++-------------------------------+-----------------+
+| title                         | total_resources |
++-------------------------------+-----------------+
+| Tech Innovators Meetup        |               1 |
+| AI & ML Conference            |               1 |
+| Frontend Development Bootcamp |               1 |
++-------------------------------+-----------------+
+3 rows in set (0.00 sec)
+
+mysql> Select u.full_name, e.title, f.rating, f.comments from Feedback f join Users u on f.user_id=u.user_id join Events e on f.event_id=e.event_id where f.rating<3;
+Empty set (0.00 sec)
+
+mysql>
+mysql>
+mysql> select e.title, count(s.session_id) as session_count from Events e left join Sessions s on e.event_id=s.event_id where e.status='upcoming' group by e.title;
++-------------------------------+---------------+
+| title                         | session_count |
++-------------------------------+---------------+
+| Tech Innovators Meetup        |             2 |
+| Frontend Development Bootcamp |             1 |
++-------------------------------+---------------+
+2 rows in set (0.00 sec)
+
+mysql> select u.full_name, e.status, count(e.event_id) as total_events from Users u join Events e on u.user_id=e.organizer_id group by u.full_name, e.status;
++---------------+-----------+--------------+
+| full_name     | status    | total_events |
++---------------+-----------+--------------+
+| Alice Johnson | upcoming  |            1 |
+| Charlie Lee   | completed |            1 |
+| Bob Smith     | upcoming  |            1 |
++---------------+-----------+--------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> select e.title from Events e join Registrations r on e.event_id=r.event_id left join Feedback f on e.event_id=f.event_id where f.feedback_id is null;
++-------------------------------+
+| title                         |
++-------------------------------+
+| Frontend Development Bootcamp |
++-------------------------------+
+1 row in set (0.00 sec)
+
+mysql> Select registration_date, count(*) as user_count from Users where registration_date>=curdate()-interval 7 day group by registration_date;
+Empty set (0.00 sec)
+
+mysql> select e.title, count(s.session_id) as total_sessions from Events e join Sessions s on e.event_id=s.event_id group by e.title order by total_sessions desc limit 1;
++------------------------+----------------+
+| title                  | total_sessions |
++------------------------+----------------+
+| Tech Innovators Meetup |              2 |
++------------------------+----------------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> Select e.city, avg(f.rating) as avg_rating from Events e join Feedback f on e.event_id=f.event_id group by e.city;
++----------+------------+
+| city     | avg_rating |
++----------+------------+
+| New York |     3.0000 |
+| Chicago  |     4.5000 |
++----------+------------+
+2 rows in set (0.00 sec)
+
+mysql> select e.title, count(r.registration_id) as total_reg from Events e join Registrations r on e.event_id=r.event_id group by e.title order by total_reg desc limit 3;
++-------------------------------+-----------+
+| title                         | total_reg |
++-------------------------------+-----------+
+| Tech Innovators Meetup        |         2 |
+| AI & ML Conference            |         2 |
+| Frontend Development Bootcamp |         1 |
++-------------------------------+-----------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql> Select s1.event_id, s1.title, s2.title from Sessions s1 join Sessions s2 on s1.event_id=s2.event_id and s1.session_id<s2.session_id and s1.start_time<s2.end_time and s1.end_time>s2.start_time;
+Empty set (0.00 sec)
+
+mysql> select u.* from Users u left join Registrations r on u.user_id=r.user_id where u.registration_date>=curdate()-interval 30 day and r.registration_id is null;
+Empty set (0.00 sec)
+
+mysql> Select speaker_name, count(*) as session_count from Sessions group by speaker_name having count(*)>1;
+Empty set (0.00 sec)
+
+mysql>
+mysql> select e.title from Events e left join Resources r on e.event_id=r.event_id where r.resource_id is null;
+Empty set (0.00 sec)
+
+mysql>
+mysql> select e.title, count(distinct r.registration_id) as registrations, avg(f.rating) as avg_rating from Events e left join Registrations r on e.event_id=r.event_id left join Feedback f on e.event_id=f.event_id where e.status='completed' group by e.title;
++--------------------+---------------+------------+
+| title              | registrations | avg_rating |
++--------------------+---------------+------------+
+| AI & ML Conference |             2 |     4.5000 |
++--------------------+---------------+------------+
+1 row in set (0.00 sec)
+
+mysql> select u.full_name, count(distinct r.event_id) as events_attended, count(distinct f.feedback_id) as feedbacks from Users u left join Registrations r on u.user_id=r.user_id left join Feedback f on u.user_id=f.user_id group by u.full_name;
++---------------+-----------------+-----------+
+| full_name     | events_attended | feedbacks |
++---------------+-----------------+-----------+
+| Alice Johnson |               1 |         0 |
+| Bob Smith     |               1 |         1 |
+| Charlie Lee   |               1 |         1 |
+| Diana King    |               1 |         1 |
+| Ethan Hunt    |               1 |         0 |
++---------------+-----------------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> select u.full_name, count(f.feedback_id) as feedback_count from Users u join Feedback f on u.user_id=f.user_id group by u.full_name order by feedback_count desc limit 5;
++-------------+----------------+
+| full_name   | feedback_count |
++-------------+----------------+
+| Bob Smith   |              1 |
+| Charlie Lee |              1 |
+| Diana King  |              1 |
++-------------+----------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql> select user_id, event_id, count(*) as dup_count from Registrations group by user_id, event_id having count(*)>1;
+Empty set (0.00 sec)
+
+mysql> Select year(registration_date) as yr, month(registration_date) as mn, count(*) as total from Registrations group by year(registration_date), month(registration_date) order by yr, mn;
++------+------+-------+
+| yr   | mn   | total |
++------+------+-------+
+| 2025 |    4 |     2 |
+| 2025 |    5 |     2 |
+| 2025 |    6 |     1 |
++------+------+-------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> select e.title, avg(timestampdiff(minute, s.start_time, s.end_time)) as avg_duration from Events e join Sessions s on e.event_id=s.event_id group by e.title;
++-------------------------------+--------------+
+| title                         | avg_duration |
++-------------------------------+--------------+
+| Tech Innovators Meetup        |      67.5000 |
+| AI & ML Conference            |      90.0000 |
+| Frontend Development Bootcamp |     120.0000 |
++-------------------------------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> Select e.title from Events e left join Sessions s on e.event_id=s.event_id where s.session_id is null;
+Empty set (0.00 sec)
+
+mysql>
+mysql>
+
+
+

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Local Community Event Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body{
+            background-color: #f2f2f2;
+        }
+        #welcomeBanner{
+            background-color: blue;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .highlight{
+            background-color: rgb(92, 205, 58);
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="help.html" target="_blank">Help</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main -->
+
+    <main>
+
+        <!-- Welcome Banner -->
+
+        <div id="welcomeBanner">
+            <h1>Welcome to Local Community Event Portal</h1>
+            <span style="color:red; font-weight:bold;"> Free Registration for First 50 Members</span>
+        </div>
+
+        <!-- Home Section -->
+
+        <section id="home">
+            <h2 style="color: red;">Home</h2>
+            <p class="highlight">Search and Register for Community Events</p>
+
+        </section>
+        
+        <!-- Events Section -->
+
+        <section id="events">
+
+            <table class="tb">
+                <caption><h2>Community Events</h2></caption>
+                <tr class="eventCard">
+                    <td>
+                        <img src="images/food.jpeg" alt="Food Festival" title="Food Festival" class="eve_img" ondblclick="enlarge(this)">
+                        <p>Food Festival</p>
+                    </td>
+                    <td>
+                        <img src="images/music.jpeg" alt="Music Concert" title="Music Concert" class="eve_img" ondblclick="enlarge(this)">
+                        <p>Music Concert</p>
+                    </td>
+                    <td>
+                        <img src="images/cultural.jpeg" alt="Cultural Event" title="Cultural Event" class="eve_img" ondblclick="enlarge(this)">
+                        <p>Cultural Event</p>
+                    </td>
+                </tr>
+                <tr class="eventCard">
+                    <td>
+                        <img src="images/tournament.jpeg" alt="Sports Tournament" title="Sports Tournament" class="eve_img" ondblclick="enlarge(this)">
+                        <p>Sports Tournament</p>
+                    </td>
+                    <td>
+                        <img src="images/hallowan.jpeg" alt="Halloween" title="Halloween" class="eve_img" ondblclick="enlarge(this)">
+                        <p>Dance Show</p>
+                    </td>
+                    <td>
+                        <img src="images/art&craft.jpeg"alt="Art Exhibition" title="Art Exhibition" class="eve_img" ondblclick="enlarge(this)">
+                        <p>Art Exhibition</p>
+                    </td>
+                </tr>
+            </table>
+
+        </section>
+
+        <!-- Registration Form -->
+
+        <section>
+
+            <h2 style="text-align:center;">Event Registration Form</h2>
+
+            <form class="regform" id="registerform">
+                <label>Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name" required autofocus>
+                <br><br>
+                <label>Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <br><br>
+                <label>Phone Number:</label>
+                <input id="phone" type="number" onblur="validatePhone()">
+                <br><br>
+                <label>Select Date:</label>
+                <input type="date">
+                <br><br>
+                <label>Event Type:</label>
+                <select onchange="showFee();filterategory();" id="eventType">
+                    <option value="">Choose Event</option>
+                    <option value="200">Food Event</option>
+                    <option value="300">Music Event</option>
+                    <option value="400">Sports Event</option>
+                    <option value="350">Art&craft event </option>
+                    <option value="250">Cultural Event</option>
+                    <option value="500">Halloween Event</option>
+                </select>
+                <br><br>
+                <p id="fee"></p>
+                <label>Feedback:</label>
+                <textarea id="feedback" onkeydown="countCharacters()" placeholder="Enter feedback"></textarea>
+                <p>Characters:<span id="charCount">0</span></p>
+                <button class="btn" id="registerBtn" type="submit">Register</button>
+                <br><br>
+                <output id="outputmsg"></output>
+            </form>
+
+        </section>
+
+        <!-- Video Section -->
+
+        <section>
+
+            <h2>Promo Video</h2>
+            <video class="promovideo" width="400" controls  oncanplay="videoReady()">
+                <source src="video/promovideo.mp4" type="video/mp4">
+            </video>
+            <p id="videoMessage"></p>
+
+        </section>
+        <!-- Geolocation -->
+
+        <section>
+
+            <h2>Nearby Events</h2>
+            <button class="btn" onclick="findLocation()">Find Nearby Events</button>
+            <p id="location"></p>
+
+        </section>
+
+        <section class="newsarticle">
+            <h2>Community Bulletin</h2>
+            <p>The local community is organizing multiple events for residents. Citizens can participate in food festivals, music concerts,cultural programs, sports tournaments, and art exhibitions.
+                These activities help people connect with each other and encourage community participation. Volunteers are also welcome to join social awareness campaigns and environmental programs. Residents are requested to register early for upcoming events.
+            </p>
+        </section>
+
+        <!-- Contact -->
+
+        <section id="contact">
+            <h2>Contact</h2>
+            <p>Email: supportfromlocalcounil@gmail.com</p>
+            <p>Phone: +91 9852364785</p>
+        </section>
+        <button class="btn" type="button" onclick="clr()">Clear Preferences</button>
+
+    </main>
+
+    <!-- Footer -->
+
+    <footer class="foot">
+
+        <p>&copy; 2026 Local Community Portal</p>
+
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
